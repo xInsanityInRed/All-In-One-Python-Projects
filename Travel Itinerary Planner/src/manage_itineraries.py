@@ -8,7 +8,7 @@ It allows the user to add, edit, view, delete, and export an itinerary while che
 
 
 def add_itinerary(itinerary_list, name, location, summary, start_date, end_date, flights, attractions):
-    """
+    '''
     Add a new itinerary to the list of itineraries.
 
     Args:
@@ -23,12 +23,10 @@ def add_itinerary(itinerary_list, name, location, summary, start_date, end_date,
     Returns:
         bool: True if Itinerary is added without issue, otherwise False.
 
-    Raises:
-        ValueError: If the start or end date is not in the correct format.
-
     Side Effects:
         - Saves the updated itinerary list to a file using `update_itinerary`.
-    """
+    '''
+
     # Prevent duplicate itineraries
     if any(trip.name == name for trip in itinerary_list):
         print("Error: A trip with this name already exists!")
@@ -70,7 +68,17 @@ def export_itinerary(itinerary, chosen_itinerary):
 # Validation functions
 
 def validate_dates(start_date, end_date, flights):
-    # Validate dates given for start date, end date and flight datetimes
+    '''
+    Validate dates given for start date, end date and flight datetimes
+
+    Raises:
+        ValueError: If the start or end date is not in the correct format.
+
+    :param start_date (DD-MM-YYYY): Itinerary start date.
+    :param end_date (DD-MM-YYYY): Itinerary start date.
+    :param flights (nested dict): Nested dictionary containing flight information. This function will be testing the departure_date and arrival_date items.
+    '''
+
     try:
         datetime.strptime(start_date, "%d-%m-%Y")
     except ValueError:
