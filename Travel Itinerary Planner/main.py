@@ -28,14 +28,11 @@ def run_app():
                     print("Enter a number between 1-5.")
             else:
                 ("Invalid input: Please enter a number between 1-5.")
-        
+
         # Add a new itinerary
         if user_choice == "1":
-            flights_list_done = False
-            attractions_list_done = False
-
             print("How exciting! Please provide us information about the trip: \n")
-            name = input("Title of the itinerary: ")
+            name = input("Name of the itinerary (please choose a name you will remember for later): ")
             location = input("Location (NA if not applicable): ")
             summary = input("Brief description of trip: ")
             start_date = input("Start date in DD-MM-YYYY: ")
@@ -123,9 +120,7 @@ def run_app():
 
         # View itinerary
         elif user_choice == "3":
-            chosen_itinerary = input("Please choose a trip")
-            view_itineraries(itineraries, chosen_itinerary)
-            pass
+            view_itineraries(itineraries)
 
         # Delete itinerary
         elif user_choice == "4":

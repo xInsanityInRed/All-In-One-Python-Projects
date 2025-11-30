@@ -27,7 +27,7 @@ class Itinerary:
         self.summary = summary
         self.start_date = start_date
         self.end_date = end_date
-        self.flights = flights
+        self.flights = flights  # https://docs.python.org/3/tutorial/classes.html#class-and-instance-variables
         self.attractions = attractions
         pass
 
