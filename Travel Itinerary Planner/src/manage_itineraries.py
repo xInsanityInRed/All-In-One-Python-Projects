@@ -1,5 +1,10 @@
-from src.itinerary import Itinerary
+from src.file_handler import load_itineraries, save_itineraries
 from datetime import datetime
+from pick import pick
+from anytree import Node, RenderTree
+from pickpack import pickpack
+from rich.console import Console
+from rich.table import Table
 
 """
 This file contains all of the functions needed for the Travel Itinerary Planner.
@@ -9,30 +14,42 @@ It allows the user to add, edit, view, delete, and export an itinerary while che
 
 def add_itinerary(itinerary_list, name, location, summary, start_date, end_date, flights, attractions):
     '''
-    Add a new itinerary to the list of itineraries.
-
-    Args:
-        itinerary_list (list): The list of existing Itinerary objects.
-        location (str): The main city/country the holiday takes place.
-        summary (str, optional): A brief summary of the travel plan.
-        start_date (str): The date the holiday begins in 'DD-MM-YYYY' format.
-        end_date (str): The date the holiday ends in 'DD-MM-YYYY' format.
-        flights (nested dict): A nested dictionary type. Flight name (before-after location format, e.g. Perth-Sydney) is tied to a date in 'DD-MM-YYYY' format.
-        attractions (nested dict): Dictionary of attractions. Each dictionary key (name of attraction) contains a short description of the attraction (object).
+    Docstring for add_itinerary
 
     Returns:
         bool: True if Itinerary is added without issue, otherwise False.
 
     Side Effects:
-        - Saves the updated itinerary list to a file using `update_itinerary`.
+        - Saves the updated itinerary list to a file using `save_itineraries`.
     '''
+    # TEST: check that all items have been transferred correctly
+    print(name)
+    print(location)
+    print(summary)
+    print(start_date)
+    print(end_date)
+    print(flights.items())
+    print(attractions.items())
 
-    # Prevent duplicate itineraries
-    if any(trip.name == name for trip in itinerary_list):
-        print("Error: A trip with this name already exists!")
-        return False
+    if validate_dates(start_date, end_date, flights):
+        # Add the new itinerary after validation checks
+        new_itinerary = {
+            "name": name,
+            "location": location,
+            "summary": summary,
+            "start_date": start_date,
+            "end_date": end_date,
+            "flights": flights,
+            "attractions": attractions
+        }
+        print(new_itinerary)
 
-    if not validate_dates(start_date, end_date, flights):
+        itinerary_list.append(new_itinerary)
+        print(itinerary_list)
+
+        save_itineraries(itinerary_list)
+        return True
+    else:
         return False
 
     # Add the new itinerary after validation checks
@@ -94,13 +111,15 @@ def validate_dates(start_date, end_date, flights):
     # Resource used for following code: https://stackoverflow.com/questions/17322208/multiple-try-codes-in-one-block
     for flight_name, flight_info in flights.items():
         try:
-            datetime.strptime(flight_info["departure_time"], "%d-%m-%Y %H:%M")
+            datetime.strptime(flight_info["departure date"], "%d-%m-%Y %H:%M")
         except ValueError:
             print("Error: Invalid date/time for flight departure. Use 'DD-MM-YYYY HH:MM' format.")
             return False
 
         try:
-            datetime.strptime(flight_info["arrival_time"], "%d-%m-%Y %H:%M")
+            datetime.strptime(flight_info["arrival date"], "%d-%m-%Y %H:%M")
         except ValueError:
             print("Error: Invalid date/time for flight arrival. Use 'DD-MM-YYYY HH:MM' format.")
             return False
+
+    return True
