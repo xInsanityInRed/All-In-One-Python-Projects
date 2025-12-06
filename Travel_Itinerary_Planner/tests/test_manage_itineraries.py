@@ -128,13 +128,73 @@ class TestManageItineraries(unittest.TestCase):
         self.assertFalse(same_name_result)
         self.assertFalse(duplicate_result)
 
-    def test_add_invalid_itinerary(self):
+    def test_add_itinerary_with_invalid_dates(self):
         """
-        Test adding a task with an invalid due date format.
-        Verify that the function handles invalid input gracefully and returns False.
+        Test adding a task with invalid date formats (start_date, end_date, & flight departure and arrival datetimes).
+        Verify that the function handles invalid input as expected and returns False.
         """
-        result = add_itinerary(self.itineraries, "Test Task", "Description", "2024-12-01", "Pending")
-        self.assertFalse(result)
+        test_itinerary = {
+            "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "12-12-2026 08:00",
+                "arrival airport": "Narita",
+                "arrival date": "12-12-2026 16:00"
+            },
+                {
+                    "flight name": "Narita to Perth",
+                    "departure airport": "Narita",
+                    "departure date": "27-01-2027 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "28-01-2027 07:00"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "Hike",
+                "address": "123 Hike Lane",
+                "summary": "A cool hike with good views",
+                "tag(s)": "outdoors"
+            },
+                {
+                    "attraction name": "Dinner spot",
+                    "address": "49 Sweet Cove",
+                    "summary": "A lovely dinner spot",
+                    "tag(s)": "dinner, romantic"
+                }
+            ]}
+        
+        # Flight item to use for departure_date validation (expected to assertFalse)
+        invalid_departure_date = [{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "08:00 12-12-2026",
+                "arrival airport": "Narita",
+                "arrival date": "12-12-2026 16:00"
+            }]
+        
+        invalid_arrival_date = [{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "12-12-2026 08:00",
+                "arrival airport": "Narita",
+                "arrival date": "2026-12-12 16:00"
+            }]
+        
+        # Test start_date with reversed format ("YYYY-MM-DD") -> asserts False
+        invalid_start_date_result = add_itinerary(self.itineraries, name=test_itinerary["name"], location=test_itinerary["location"], description=test_itinerary["description"], start_date="2026-12-12", end_date=test_itinerary["end_date"], flights=test_itinerary["flights"], attractions=test_itinerary["attractions"])
+
+        # Test end_date with American format ("MM-DD-YYYY") -> asserts False
+        invalid_end_date_result = add_itinerary(self.itineraries, name=test_itinerary["name"], location=test_itinerary["location"], description=test_itinerary["description"], start_date=test_itinerary["start_date"], end_date="01-28-2027", flights=test_itinerary["flights"], attractions=test_itinerary["attractions"])
+        
+        # Test invalid flight dates
+        invalid_departure_date_result = add_itinerary(self.itineraries, name=test_itinerary["name"], location=test_itinerary["location"], description=test_itinerary["description"], start_date=test_itinerary["start_date"], end_date=test_itinerary["end_date"], flights=invalid_departure_date, attractions=test_itinerary["attractions"])
+
+        invalid_arrival_date_result = add_itinerary(self.itineraries, name=test_itinerary["name"], location=test_itinerary["location"], description=test_itinerary["description"], start_date=test_itinerary["start_date"], end_date=test_itinerary["end_date"], flights=invalid_arrival_date, attractions=test_itinerary["attractions"])
+
+        self.assertFalse(invalid_start_date_result)
+        self.assertFalse(invalid_end_date_result)
+        self.assertFalse(invalid_departure_date_result)
+        self.assertFalse(invalid_arrival_date_result)
 
     def test_delete_itinerary(self):
         """
