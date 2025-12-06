@@ -127,21 +127,25 @@ def run_app():
             edit_option, edit_index = pick(edit_options, edit_prompt)
 
             if edit_option == 'flights':
+                attraction_choice = "N/A"
                 flight_name_prompt = 'Which flight would you like to edit?'
                 flight_name_options = []
-                for item in itineraries:
-                    for flight in item['flights']:
-                        flight_name_options.append(flight["flight name"])
+                for itinerary in itineraries:
+                    if itinerary["name"] == itinerary_option:
+                        for flight in itinerary['flights']:
+                            flight_name_options.append(flight["flight name"])
                 flight_choice, flight_name_index = pick(flight_name_options, flight_name_prompt)
                 flight_prompt = 'Finally, what about the flight would you like to edit?'
                 flight_options = ['departure airport', 'departure date', 'arrival airport', 'arrival date']
                 edit_option, flight_index = pick(flight_options, flight_prompt)
             elif edit_option == 'attractions':
+                flight_choice = "N/A"
                 attraction_name_prompt = 'Which attraction would you like to edit?'
                 attractions_available = []
-                for item in itineraries:
-                    for attraction in item['attractions']:
-                        attractions_available.append(attraction["attraction name"])
+                for itinerary in itineraries:
+                    if itinerary["name"] == itinerary_option:
+                        for attraction in itinerary['attractions']:
+                            attractions_available.append(attraction["attraction name"])
                 attraction_choice, attraction_choice_index = pick(attractions_available, attraction_name_prompt)
                 attractions_prompt = 'Which attraction property would you like to edit?'
                 attraction_options = ['attraction_name', 'address', 'summary', 'tag(s)']
@@ -149,7 +153,6 @@ def run_app():
             elif edit_option != 'flights' or edit_option != 'attractions':
                 flight_choice = "N/A"
                 attraction_choice = "N/A"
-                print(flight_choice)
 
             edit_itinerary(itineraries, itinerary_option, edit_option, flight_choice, attraction_choice)
 
@@ -182,6 +185,16 @@ def run_app():
                         "arrival airport": arrival_airport,
                         "arrival date": arrival_date
                     })
+                    # Check if flight already exists
+                    for itinerary in itineraries:
+                        for flight in itinerary['flights']:
+                            if flight_name == flight['flight name']:
+                                print(f"Flight '{flight_name}' already exists!")
+                                flights_list_done = True
+                                break
+                    if flights_list_done:
+                        print("Returning to main menu...")
+                        break
 
                     while True:
                         add_another_flight = input("Would you like to add another flight? Type Y (yes) or N (no): ")
@@ -211,6 +224,16 @@ def run_app():
                         "summary": attraction_summary,
                         "tag(s)": attraction_tags
                     })
+                    # Check if attraction already exists
+                    for itinerary in itineraries:
+                        for attraction in itinerary['attractions']:
+                            if attraction_name == attraction['attraction name']:
+                                print(f"Attraction '{attraction_name}' already exists!")
+                                attractions_list_done = True
+                                break
+                    if attractions_list_done:
+                        print("Returning to main menu...")
+                        break
 
                     while True:
                         add_another_attraction = input("Would you like to add another attraction? Type Y or N:")
@@ -229,7 +252,22 @@ def run_app():
             if not itineraries:
                 print("No itineraries available to view!")
             else:
-                view_itineraries(itineraries)
+                # Use pick module: Ask if they would like to view all itineraries, or a specific one
+                view_prompt = 'Would you like to view all the existing itineraries?:  '
+                view_options = ['View All', 'View One']
+                option, index = pick(view_options, view_prompt)
+                if option == 'View All':
+                    print(f"\nFilter selected: {option}")
+                    filter_option = "All"
+                elif option == 'View One':
+                    # Use pick module to select an itinerary by name and location
+                    print(f"\nFilter selected: {option}")
+                    itinerary_choice = 'Which itinerary would you like to view?: '
+                    itinerary_options = []
+                    for trip in itineraries:
+                        itinerary_options.append(trip["name"])
+                    filter_option, filter_index = pick(itinerary_options, itinerary_choice)
+                view_itineraries(itineraries, filter_option)
 
         # Delete itinerary
         elif user_choice == "5":

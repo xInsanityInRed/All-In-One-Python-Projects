@@ -181,24 +181,8 @@ def add_new_attraction(itinerary_list, itinerary_name, new_attractions):
     return True
 
 
-def view_itineraries(itinerary_list):
-    # Use pick module: Ask if they would like to view all itineraries, or a specific one
-    view_prompt = 'Would you like to view all the existing itineraries?:  '
-    view_options = ['View All', 'View One']
-    option, index = pick(view_options, view_prompt)
-    if option == 'View All':
-        print(f"\nFilter selected: {option}")
-        # Use rich to print table
-        print_table(itinerary_list)
-    elif option == 'View One':
-        # Use pick module to select an itinerary by name and location
-        print(f"\nFilter selected: {option}")
-        itinerary_choice = 'Which itinerary would you like to view?: '
-        itinerary_options = []
-        for trip in itinerary_list:
-            itinerary_options.append(trip["name"])
-        filter_option, filter_index = pick(itinerary_options, itinerary_choice)
-
+def view_itineraries(itinerary_list, filter_option):
+    if filter_option != "All":
         # Filter itinerary list
         filtered_itineraries = []
         for itinerary in itinerary_list:
@@ -207,8 +191,8 @@ def view_itineraries(itinerary_list):
         # Use rich to print table
         print_table(filtered_itineraries)
     else:
-        print("Error: Valid filter not selected, returning to Task Manager menu.\n")
-        return False
+        # Use rich to print table
+        print_table(itinerary_list)
     return True
 
 
