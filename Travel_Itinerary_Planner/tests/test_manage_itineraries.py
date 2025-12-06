@@ -48,7 +48,7 @@ class TestManageItineraries(unittest.TestCase):
         Test adding a new task to the task list.
         Verify that the task is successfully added and the list size increases.
         """
-        test_itinerary = [{
+        test_itinerary = {
             "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
                 "flight name": "Perth to Narita",
                 "departure airport": "Perth",
@@ -76,7 +76,7 @@ class TestManageItineraries(unittest.TestCase):
                     "summary": "A lovely dinner spot",
                     "tag(s)": "dinner, romantic"
                 }
-            ]}]
+            ]}
         
         result = add_itinerary(self.itineraries, name=test_itinerary["name"], location=test_itinerary["location"], description=test_itinerary["description"], start_date=test_itinerary["start_date"], end_date=test_itinerary["end_date"], flights=test_itinerary["flights"], attractions=test_itinerary["attractions"])
 
@@ -86,10 +86,10 @@ class TestManageItineraries(unittest.TestCase):
 
     def test_add_duplicate_itinerary(self):
         """
-        Test adding a duplicate task with the same title.
-        Verify that duplicates are not allowed and the function returns False.
+        Test adding a duplicate itinerary with the same title but different values, then a complete copy of the itinerary.
+        Verify that these itineraries are not allowed and the function returns False.
         """
-        test_itinerary = [{
+        test_itinerary = {
             "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
                 "flight name": "Perth to Narita",
                 "departure airport": "Perth",
@@ -117,11 +117,16 @@ class TestManageItineraries(unittest.TestCase):
                     "summary": "A lovely dinner spot",
                     "tag(s)": "dinner, romantic"
                 }
-            ]}]
+            ]}
 
-        add_itinerary(self.itineraries, "Test Task", "Description", "01-12-2021", "Pending")
-        result = add_itinerary(self.itineraries, "Test Task", "New Description", "02-12-2024", "Pending")
-        self.assertFalse(result)
+        add_itinerary(self.itineraries, name=test_itinerary["name"], location=test_itinerary["location"], description=test_itinerary["description"], start_date=test_itinerary["start_date"], end_date=test_itinerary["end_date"], flights=test_itinerary["flights"], attractions=test_itinerary["attractions"])
+
+        same_name_result = add_itinerary(self.itineraries, name=test_itinerary["name"], location="Another location", description="Another description", start_date=test_itinerary["start_date"], end_date=test_itinerary["end_date"], flights=test_itinerary["flights"], attractions=test_itinerary["attractions"])
+
+        duplicate_result = add_itinerary(self.itineraries, name=test_itinerary["name"], location=test_itinerary["location"], description=test_itinerary["description"], start_date=test_itinerary["start_date"], end_date=test_itinerary["end_date"], flights=test_itinerary["flights"], attractions=test_itinerary["attractions"])
+
+        self.assertFalse(same_name_result)
+        self.assertFalse(duplicate_result)
 
     def test_add_invalid_itinerary(self):
         """

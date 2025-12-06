@@ -44,11 +44,16 @@ def add_itinerary(itinerary_list, name, location, description, start_date, end_d
         # print(new_itinerary)
         if itinerary_list:
             for itinerary in itinerary_list:
-                if new_itinerary== itinerary:
+                if new_itinerary == itinerary:
                     print("This itinerary already exists!\nReturning to main menu...")
+                    return False
+                elif new_itinerary["name"] == itinerary["name"]:
+                    print(f"'{new_itinerary["name"]}' already exists!\nReturning to main menu...")
                     return False
                 else:
                     itinerary_list.append(new_itinerary)
+        else:
+            itinerary_list.append(new_itinerary)
         # Uncomment to print for itinerary_list validation:
         # print(itinerary_list)
 
