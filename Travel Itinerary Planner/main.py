@@ -1,5 +1,5 @@
 from src.file_handler import load_itineraries
-from src.manage_itineraries import add_itinerary, edit_itinerary, add_new_flight, add_new_attraction, view_itineraries, delete_itinerary, print_table
+from src.manage_itineraries import add_itinerary, edit_itinerary, add_new_flight, add_new_attraction, view_itineraries, delete_itinerary, delete_itinerary_item, print_table
 from pick import pick
 
 
@@ -226,13 +226,98 @@ def run_app():
 
         # View itinerary
         elif user_choice == "4":
-            view_itineraries(itineraries)
+            if not itineraries:
+                print("No itineraries available to view!")
+            else:
+                view_itineraries(itineraries)
 
         # Delete itinerary
         elif user_choice == "5":
-            chosen_itinerary = input("")
-            delete_itinerary(chosen_itinerary)
-            pass
+            # Use pick to choose delete options
+            delete_prompt = 'Would you like to delete a full itinerary, or a flight/attraction? \n(Note: You can only delete a flight or attraction if there is MORE THAN ONE available in the itinerary. \nIf there is only one, please select return.)'
+            delete_options = ['Entire itinerary', 'Itinerary flight', 'Itinerary attraction', 'Return']
+            delete_option, delete_index = pick(delete_options, delete_prompt)
+            print_table(itineraries)
+
+            if delete_option == 'Entire itinerary':
+                itinerary_prompt = 'Which itinerary would you like to delete? '
+                itinerary_options = []
+                for itinerary in itineraries:
+                    itinerary_options.append(itinerary["name"])
+                itinerary_option, itinerary_index = pick(itinerary_options, itinerary_prompt)
+                if delete_itinerary(itineraries, itinerary_option):
+                    print("Itinerary has been deleted.")
+                else:
+                    print("Itinerary could not be found.")
+
+            elif delete_option == 'Itinerary flight':
+                while True:
+                    multiple_flights = True
+                    selected_type = "flights"
+                    # Choose itinerary
+                    itinerary_prompt = 'Which itinerary would you like to change? '
+                    itinerary_options = []
+                    for itinerary in itineraries:
+                        itinerary_options.append(itinerary["name"])
+                    itinerary_option, itinerary_index = pick(itinerary_options, itinerary_prompt)
+                    # Choose flight
+                    flight_prompt = 'Which flight would you like to delete? '
+                    flight_options = []
+                    for itinerary in itineraries:
+                        if itinerary["name"] == itinerary_option:
+                            if len(itinerary["flights"]) <= 1:
+                                print("There is only one flight available, therefore you cannot delete it.")
+                                multiple_flights = False
+                                break
+                            else:
+                                for flight in itinerary["flights"]:
+                                    flight_options.append(flight["flight name"])
+                    # Checks if 'while True' statement should be broken
+                    if not multiple_flights:
+                        print("Returning to main menu...")
+                        break
+                    flight_id, itinerary_index = pick(flight_options, flight_prompt)
+                    if delete_itinerary_item(itineraries, selected_type, itinerary_option, flight_id):
+                        print(f"Flight '{flight_id}' has been deleted.")
+                    else:
+                        print("Flight could not be found.")
+                    break
+
+            elif delete_option == 'Itinerary attraction':
+                while True:
+                    multiple_attractions = True
+                    selected_type = "attractions"
+                    # Choose itinerary
+                    itinerary_prompt = 'Which itinerary would you like to change? '
+                    itinerary_options = []
+                    for itinerary in itineraries:
+                        itinerary_options.append(itinerary["name"])
+                    itinerary_option, itinerary_index = pick(itinerary_options, itinerary_prompt)
+                    # Choose attraction
+                    attraction_prompt = 'Which attraction would you like to delete? '
+                    attraction_options = []
+                    for itinerary in itineraries:
+                        if itinerary["name"] == itinerary_option:
+                            if len(itinerary["attractions"]) <= 1:
+                                print("There is only one attraction available, therefore you cannot delete it.")
+                                multiple_attractions = False
+                                break
+                            else:
+                                for attraction in itinerary["attractions"]:
+                                    attraction_options.append(attraction["attraction name"])
+                    # Checks if 'while True' statement should be broken
+                    if not multiple_attractions:
+                        print("Returning to main menu...")
+                        break
+                    attraction_id, itinerary_index = pick(attraction_options, attraction_prompt)
+                    if delete_itinerary_item(itineraries, selected_type, itinerary_option, attraction_id):
+                        print(f"Attraction '{attraction_id}' has been deleted.")
+                    else:
+                        print("Attraction could not be found.")
+                    break
+
+            elif delete_option == 'Return':
+                print("Returning to previous menu...\n")
 
         # Log out
         elif user_choice == "6":

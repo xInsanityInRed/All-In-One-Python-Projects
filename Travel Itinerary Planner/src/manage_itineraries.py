@@ -1,8 +1,6 @@
 from src.file_handler import load_itineraries, save_itineraries
 from datetime import datetime
 from pick import pick
-from anytree import Node, RenderTree
-from pickpack import pickpack, PickPacker, AnyNode
 from rich.console import Console
 from rich.table import Table
 from rich import print
@@ -22,14 +20,15 @@ def add_itinerary(itinerary_list, name, location, description, start_date, end_d
     Side Effects:
         - Saves the updated itinerary list to a file using `save_itineraries`.
     """
-    # TEST: check that all items have been transferred correctly
-    print(name)
-    print(location)
-    print(description)
-    print(start_date)
-    print(end_date)
-    print(flights)
-    print(attractions)
+    # Print TEST: Uncomment to check that all items have been transferred correctly
+    # print(name)
+    # print(location)
+    # print(description)
+    # print(start_date)
+    # print(end_date)
+    # print(flights)
+    # print(attractions)
+    # print("TEST ENDS HERE")
 
     if validate_dates(start_date, end_date, flights):
         # Add the new itinerary after validation checks
@@ -42,10 +41,12 @@ def add_itinerary(itinerary_list, name, location, description, start_date, end_d
             "flights": flights,
             "attractions": attractions
         }
-        print(new_itinerary)
+        # Uncomment to print for itinerary validation:
+        # print(new_itinerary)
 
         itinerary_list.append(new_itinerary)
-        print(itinerary_list)
+        # Uncomment to print for itinerary_list validation:
+        # print(itinerary_list)
 
         save_itineraries(itinerary_list)
         return True
@@ -145,7 +146,8 @@ def edit_itinerary(itinerary_list, itinerary_option, edit_option, flight_choice,
                             attraction.update({"tag(s)": attraction_tags})
                             break
     save_itineraries(itinerary_list)
-    print(itinerary_list)
+    # Uncomment to print for itinerary_list validation:
+    # print(itinerary_list)
     return True
 
 
@@ -159,7 +161,8 @@ def add_new_flight(itinerary_list, itinerary_name, new_flights):
                     print(f"Duplicate flight detected: {flight["flight name"]}!")
                     print("This flight will not be added.")
     save_itineraries(itinerary_list)
-    print(itinerary_list)
+    # Uncomment to print for itinerary_list validation:
+    # print(itinerary_list)
     return True
 
 
@@ -173,7 +176,8 @@ def add_new_attraction(itinerary_list, itinerary_name, new_attractions):
                     print(f"Duplicate attraction detected: {attraction["attraction name"]}!")
                     print("This attraction will not be added.")
     save_itineraries(itinerary_list)
-    print(itinerary_list)
+    # Uncomment to print for itinerary_list validation:
+    # print(itinerary_list)
     return True
 
 
@@ -208,15 +212,36 @@ def view_itineraries(itinerary_list):
     return True
 
 
-def delete_itinerary(chosen_itinerary):
-    itinerary_list = load_itineraries()
+def delete_itinerary(itinerary_list, itinerary_to_delete):
+    for itinerary in itinerary_list:
+        if itinerary["name"] == itinerary_to_delete:
+            itinerary_list.remove(itinerary)
+            save_itineraries(itinerary_list)
+            # Uncomment to print for itinerary_list validation:
+            # print(itinerary_list)
+            return True
+    return False
 
-    print("What would you like to delete?")
-    # Use pickpack module (https://github.com/anafvana/pickpack#map-function-for-nested-lists)
-    pass
+
+def delete_itinerary_item(itinerary_list, flights_or_attractions_type, itinerary_name, item_to_delete):
+    for itinerary in itinerary_list:
+        if itinerary["name"] == itinerary_name:
+            if flights_or_attractions_type == "flights":
+                for item in itinerary["flights"]:
+                    if item["flight name"] == item_to_delete:
+                        itinerary["flights"].remove(item)
+                        save_itineraries(itinerary_list)
+                        return True
+            elif flights_or_attractions_type == "attractions":
+                for item in itinerary["attractions"]:
+                    if item["attraction name"] == item_to_delete:
+                        itinerary["attractions"].remove(item)
+                        save_itineraries(itinerary_list)
+                        return True
+    return False
 
 
-# Print functions
+# Print rich table function
 def print_table(trips):
     trip_console = Console()
     trip_table = Table(title="Itineraries", show_lines=True)
@@ -233,14 +258,14 @@ def print_table(trips):
         flight_list = ''
         attraction_list = ''
         if len(trip["flights"]) == 1:
-            flight_list = f'[bold red]{flight["flight name"]}[/bold red] \nDepart: {flight["departure date"]}\nArrive: {flight["arrival date"]} \n'
+            flight_list = f'[bold red]{trip["flights"][0]["flight name"]}[/bold red] \nDepart: {trip["flights"][0]["departure date"]}\nArrive: {trip["flights"][0]["arrival date"]} \n'
         else:
             for flight in trip["flights"]:
                 flight_item = f'[bold red]{flight["flight name"]}[/bold red] \nDepart: {flight["departure date"]}\nArrive: {flight["arrival date"]} \n'
                 flight_list = flight_list + f'{flight_item}'
 
         if len(trip["attractions"]) == 1:
-            attraction_list = f'[bold red]{attraction["attraction name"]}[/bold red] \nAddress: {attraction["address"]} \nSummary: {attraction["summary"]} \nTag(s): {attraction["tag(s)"]}\n'
+            attraction_list = f'[bold red]{trip["attractions"][0]["attraction name"]}[/bold red] \nAddress: {trip["attractions"][0]["address"]} \nSummary: {trip["attractions"][0]["summary"]} \nTag(s): {trip["attractions"][0]["tag(s)"]}\n'
         else:
             for attraction in trip["attractions"]:
                 # Printing python text with colour using ANSI codes: https://vascosim.medium.com/how-to-print-colored-text-in-python-52f6244e2e30
@@ -252,7 +277,7 @@ def print_table(trips):
     return
 
 
-# Validation functions
+# Validate dates function
 def validate_dates(start_date, end_date, flights):
     """
     Validate dates given for start date, end date and flight datetime
@@ -291,17 +316,3 @@ def validate_dates(start_date, end_date, flights):
             print("Error: Invalid date/time for flight arrival. Use 'DD-MM-YYYY HH:MM' format.")
             return False
     return True
-
-
-def find_itinerary(itinerary_list, trip_name):
-    """
-
-    Args:
-        itinerary_list: List of all itineraries saved to itinerary.bin file.
-        trip_name: Name of the trip user wants to view.
-
-    Returns:
-        itinerary: The itinerary the user wants to view.
-    """
-    trip = [itinerary for itinerary in itinerary_list if itinerary["name"] == trip_name]
-    return trip
