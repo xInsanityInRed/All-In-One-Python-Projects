@@ -284,13 +284,13 @@ def validate_dates(start_date, end_date, flights):
     """
 
     try:
-        datetime.strptime(start_date, "%d-%m-%Y")
+        datetime.strptime(start_date, "dd-mm-YYYY")
     except ValueError:
         print("Error: Invalid start date. Use 'DD-MM-YYYY' format.")
         return False
 
     try:
-        datetime.strptime(end_date, "%d-%m-%Y")
+        datetime.strptime(end_date, "dd-mm-YYYY")
     except ValueError:
         print("Error: Invalid end date. Use 'DD-MM-YYYY' format.")
         return False
@@ -298,13 +298,13 @@ def validate_dates(start_date, end_date, flights):
     # Resource used for following code: https://stackoverflow.com/questions/17322208/multiple-try-codes-in-one-block
     for flight_info in flights:
         try:
-            datetime.strptime(flight_info["departure date"], "%d-%m-%Y %H:%M")
+            datetime.strptime(flight_info["departure date"], "dd-mm-YYYY HH:MM")
         except ValueError:
             print("Error: Invalid date/time for flight departure. Use 'DD-MM-YYYY HH:MM' format.")
             return False
 
         try:
-            datetime.strptime(flight_info["arrival date"], "%d-%m-%Y %H:%M")
+            datetime.strptime(flight_info["arrival date"], "dd-mm-YYYY HH:MM")
         except ValueError:
             print("Error: Invalid date/time for flight arrival. Use 'DD-MM-YYYY HH:MM' format.")
             return False
