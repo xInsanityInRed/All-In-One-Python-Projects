@@ -1,4 +1,4 @@
-from src.file_handler import load_itineraries, save_itineraries
+from src.file_handler import save_itineraries
 from datetime import datetime
 from rich.console import Console
 from rich.table import Table

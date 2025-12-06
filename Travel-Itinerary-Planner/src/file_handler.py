@@ -7,6 +7,7 @@ ITINERARY_FILE = "itineraries.bin"
 current_directory = f"{os.getcwd()}\\{ITINERARY_FILE}"
 print(current_directory)
 
+
 def load_itineraries():
     """
     Load tasks from a binary file using the pickle module.
