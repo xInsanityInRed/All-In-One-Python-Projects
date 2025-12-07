@@ -168,6 +168,7 @@ def add_new_flight(itinerary_list, itinerary_name, new_flights):
                 else:
                     print(f"Duplicate flight detected: {flight["flight name"]}!")
                     print("This flight will not be added.")
+                    return False
     save_itineraries(itinerary_list)
     # Uncomment to print for itinerary_list validation:
     # print(itinerary_list)
@@ -183,6 +184,7 @@ def add_new_attraction(itinerary_list, itinerary_name, new_attractions):
                 else:
                     print(f"Duplicate attraction detected: {attraction["attraction name"]}!")
                     print("This attraction will not be added.")
+                    return False
     save_itineraries(itinerary_list)
     # Uncomment to print for itinerary_list validation:
     # print(itinerary_list)
@@ -239,12 +241,12 @@ def print_table(trips):
     trip_table = Table(title="Itineraries", show_lines=True)
 
     trip_table.add_column("Trip Name", justify="center", no_wrap=True)
-    trip_table.add_column("Location", justify="center")
-    trip_table.add_column("Description", justify="center")
+    trip_table.add_column("Location", justify="center", no_wrap=True)
+    trip_table.add_column("Description", justify="center", no_wrap=False)
     trip_table.add_column("Start Date", justify="center", no_wrap=True)
     trip_table.add_column("End Date", justify="center", no_wrap=True)
     trip_table.add_column("Flights", justify="left", no_wrap=True)
-    trip_table.add_column("Attractions", justify="left", style="bold")
+    trip_table.add_column("Attractions", justify="left", style="bold", no_wrap=False)
 
     for trip in trips:
         flight_list = ''

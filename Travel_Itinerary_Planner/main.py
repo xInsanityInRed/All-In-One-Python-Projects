@@ -313,11 +313,13 @@ def run_app():
                             else:
                                 for flight in itinerary["flights"]:
                                     flight_options.append(flight["flight name"])
+                                    
                     # Checks if 'while True' statement should be broken
                     if not multiple_flights:
                         print("Returning to main menu...")
                         break
                     flight_id, itinerary_index = pick(flight_options, flight_prompt)
+
                     if delete_itinerary_item(itineraries, selected_type, itinerary_option, flight_id):
                         print(f"Flight '{flight_id}' has been deleted.")
                     else:
@@ -351,6 +353,7 @@ def run_app():
                         print("Returning to main menu...")
                         break
                     attraction_id, itinerary_index = pick(attraction_options, attraction_prompt)
+
                     if delete_itinerary_item(itineraries, selected_type, itinerary_option, attraction_id):
                         print(f"Attraction '{attraction_id}' has been deleted.")
                     else:
