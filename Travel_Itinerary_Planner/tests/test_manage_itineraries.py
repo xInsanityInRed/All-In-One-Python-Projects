@@ -127,11 +127,12 @@ class TestManageItineraries(unittest.TestCase):
 
         self.assertFalse(same_name_result)
         self.assertFalse(duplicate_result)
+        self.assertEqual(len(self.itineraries), 1)
 
     def test_add_itinerary_with_invalid_dates(self):
         """
-        Test adding a task with invalid date formats (start_date, end_date, & flight departure and arrival datetimes).
-        Verify that the function handles invalid input as expected and returns False.
+        Test adding itineraries with invalid date formats (start_date, end_date, & flight departure and arrival datetimes).
+        Verify that the add_itinerary() AND validate_dates() functions handle invalid input as expected and returns False.
         """
         test_itinerary = {
             "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
@@ -186,7 +187,7 @@ class TestManageItineraries(unittest.TestCase):
         # Test end_date with American format ("MM-DD-YYYY") -> asserts False
         invalid_end_date_result = add_itinerary(self.itineraries, name=test_itinerary["name"], location=test_itinerary["location"], description=test_itinerary["description"], start_date=test_itinerary["start_date"], end_date="01-28-2027", flights=test_itinerary["flights"], attractions=test_itinerary["attractions"])
         
-        # Test invalid flight dates
+        # Test invalid flight dates -> asserts False
         invalid_departure_date_result = add_itinerary(self.itineraries, name=test_itinerary["name"], location=test_itinerary["location"], description=test_itinerary["description"], start_date=test_itinerary["start_date"], end_date=test_itinerary["end_date"], flights=invalid_departure_date, attractions=test_itinerary["attractions"])
 
         invalid_arrival_date_result = add_itinerary(self.itineraries, name=test_itinerary["name"], location=test_itinerary["location"], description=test_itinerary["description"], start_date=test_itinerary["start_date"], end_date=test_itinerary["end_date"], flights=invalid_arrival_date, attractions=test_itinerary["attractions"])
@@ -195,6 +196,113 @@ class TestManageItineraries(unittest.TestCase):
         self.assertFalse(invalid_end_date_result)
         self.assertFalse(invalid_departure_date_result)
         self.assertFalse(invalid_arrival_date_result)
+        self.assertEqual(len(self.itineraries), 0)
+
+    def test_edit_itinerary(self):
+        """
+        Test editing an itinerary's items (uses two itineraries).
+        Verify that ALL types of items in a specific itinerary can be edited smoothly, which includes:
+
+            new_name (edits name of trip) - covers string types that can be accessed in the first level of the itinerary dictionary, i.e. name, location & description.
+            new_start_date (edits trip start_date) - covers validation of a trip's start & end dates.
+            new_departure_airport (in flights list) - validates that departure & arrival airport is changed, and for the correct flight.
+                Note: the "flight name" value should ALSO change to reflect the new departure airport.
+            new_departure_date (in 'flights') - validates that departure & arrival date is validated by the validate_dates() function, then changed for the correct flight.
+            new_attraction_name (in 'attractions') - since each item in an attraction dictionary is a type of string and tested the same way, only one needs to be tested.
+        """
+        test_Japan_itinerary = {
+            "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "12-12-2026 08:00",
+                "arrival airport": "Narita",
+                "arrival date": "12-12-2026 16:00"
+            },
+                {
+                    "flight name": "Narita to Perth",
+                    "departure airport": "Narita",
+                    "departure date": "27-01-2027 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "28-01-2027 07:00"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "Hike",
+                "address": "123 Hike Lane",
+                "summary": "A cool hike with good views",
+                "tag(s)": "outdoors"
+            },
+                {
+                    "attraction name": "Dinner spot",
+                    "address": "49 Sweet Cove",
+                    "summary": "A lovely dinner spot",
+                    "tag(s)": "dinner, romantic"
+                }
+            ]}
+        
+        test_England_itinerary = {
+            "name": "England 2020", "location": "England", "description": "Trip to England in 2020", "start_date": "21-09-2020", "end_date": "04-10-2020", "flights": [{
+                "flight name": "Perth to London",
+                "departure airport": "Perth",
+                "departure date": "21-09-2020 05:00",
+                "arrival airport": "London",
+                "arrival date": "21-09-2020 21:00"
+            },
+                {
+                    "flight name": "London to Perth",
+                    "departure airport": "London",
+                    "departure date": "04-10-2020 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "05-10-2020 15:30"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "London Eye",
+                "address": "Somewhere in city",
+                "summary": "A glorified ferris wheel that shows the city surrounds",
+                "tag(s)": "view, relaxing"
+            },
+                {
+                    "attraction name": "Shakespeare's Globe",
+                    "address": "12 address strees",
+                    "summary": "A reconstructed theatre",
+                    "tag(s)": "entertainment, history"
+                }
+            ]}
+        
+        new_name = "Japan 2026-27"
+        new_start_date = "27-12-2026"
+        new_departure_airport = "Sydney"
+        new_departure_date = "23-09-2020 13:30"
+        new_attraction_name = "London Theatre"
+        add_itinerary(self.itineraries, name=test_Japan_itinerary["name"], location=test_Japan_itinerary["location"], description=test_Japan_itinerary["description"], start_date=test_Japan_itinerary["start_date"], end_date=test_Japan_itinerary["end_date"], flights=test_Japan_itinerary["flights"], attractions=test_Japan_itinerary["attractions"])
+        add_itinerary(self.itineraries, name=test_England_itinerary["name"], location=test_England_itinerary["location"], description=test_England_itinerary["description"], start_date=test_England_itinerary["start_date"], end_date=test_England_itinerary["end_date"], flights=test_England_itinerary["flights"], attractions=test_England_itinerary["attractions"])
+
+        edit_itinerary(self.itineraries, test_Japan_itinerary["name"], "name", "N/A", "N/A", new_name)
+        self.assertNotEqual(self.itineraries[0]["name"], test_Japan_itinerary["name"])
+        self.assertEqual(self.itineraries[0]["name"], new_name)
+
+        edit_itinerary(self.itineraries, self.itineraries[0]["name"], "start_date", "N/A", "N/A", new_start_date)
+        self.assertNotEqual(self.itineraries[0]["start_date"], test_Japan_itinerary["start_date"])
+        self.assertEqual(self.itineraries[0]["start_date"], new_start_date)
+        
+        old_departure_airport = test_England_itinerary["flights"][0]["departure airport"]
+        old_flight_name = test_England_itinerary["flights"][0]["flight name"]
+        edit_itinerary(self.itineraries, self.itineraries[1]["name"], "departure airport", test_England_itinerary["flights"][0]["flight name"], "N/A", new_departure_airport)
+        self.assertNotEqual(self.itineraries[1]["flights"][0]["departure airport"], old_departure_airport)
+        self.assertNotEqual(self.itineraries[1]["flights"][0]["flight name"], old_flight_name)
+        self.assertEqual(self.itineraries[1]["flights"][0]["departure airport"], new_departure_airport)
+
+        old_departure_date = test_England_itinerary["flights"][0]["departure date"]
+        edit_itinerary(self.itineraries, self.itineraries[1]["name"], "departure date", test_England_itinerary["flights"][0]["flight name"], "N/A", new_departure_date)
+        self.assertNotEqual(self.itineraries[1]["flights"][0]["departure date"], old_departure_date)
+        self.assertEqual(self.itineraries[1]["flights"][0]["departure date"], new_departure_date)
+
+        old_attraction_name = test_England_itinerary["attractions"][1]["attraction name"]
+        edit_itinerary(self.itineraries, self.itineraries[1]["name"], "attraction name", "N/A", test_England_itinerary["attractions"][1]["attraction name"], new_attraction_name)
+        self.assertNotEqual(self.itineraries[1]["attractions"][1]["attraction name"], old_attraction_name)
+        self.assertEqual(self.itineraries[1]["attractions"][1]["attraction name"], new_attraction_name)
+
 
     def test_delete_itinerary(self):
         """

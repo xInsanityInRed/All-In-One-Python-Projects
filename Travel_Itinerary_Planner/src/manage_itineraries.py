@@ -85,7 +85,7 @@ def edit_itinerary(itinerary_list, itinerary_option, edit_option, flight_choice,
                 for flight_id in itinerary["flights"]:
                     if flight_id["flight name"] == flight_choice:
                         test_updated_flight = [flight_id]
-                        test_updated_flight["departure date"] = new_value
+                        test_updated_flight[0]["departure date"] = new_value
                         if not validate_dates(itinerary["start_date"], itinerary["end_date"], test_updated_flight):
                             print("Invalid date. Format required: DD-MM-YYYY HH:MM (e.g., 12-12-2026 08:00)")
                             return False
@@ -97,7 +97,7 @@ def edit_itinerary(itinerary_list, itinerary_option, edit_option, flight_choice,
                 for flight_id in itinerary["flights"]:
                     if flight_id["flight name"] == flight_choice:
                         test_updated_flight = [flight_id]
-                        test_updated_flight["arrival date"] = new_value
+                        test_updated_flight[0]["arrival date"] = new_value
                         if not validate_dates(itinerary["start_date"], itinerary["end_date"], test_updated_flight):
                             print("Invalid date & time. Format required: DD-MM-YYYY HH:MM (e.g., 12-12-2026 08:00")
                             return False
@@ -129,7 +129,7 @@ def edit_itinerary(itinerary_list, itinerary_option, edit_option, flight_choice,
                     break
 
                 # Attractions: string type options
-                elif edit_option == 'attraction_name':
+                elif edit_option == 'attraction name':
                     for attraction in itinerary["attractions"]:
                         if attraction["attraction name"] == attraction_choice:
                             attraction.update({"attraction name": new_value})
