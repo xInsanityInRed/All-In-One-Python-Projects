@@ -148,13 +148,16 @@ def run_app():
                             attractions_available.append(attraction["attraction name"])
                 attraction_choice, attraction_choice_index = pick(attractions_available, attraction_name_prompt)
                 attractions_prompt = 'Which attraction property would you like to edit?'
-                attraction_options = ['attraction_name', 'address', 'summary', 'tag(s)']
+                attraction_options = ['attraction name', 'address', 'summary', 'tag(s)']
                 edit_option, attraction_index = pick(attraction_options, attractions_prompt)
             elif edit_option != 'flights' or edit_option != 'attractions':
                 flight_choice = "N/A"
                 attraction_choice = "N/A"
+            
+            # Set new value
+            new_edit_value = input(f"What would you like to change {edit_option} to?\n(If a start/end date use DD-MM-YYYY format. If a flight date/time, use DD-MM-YYYY HH:MM)")
 
-            edit_itinerary(itineraries, itinerary_option, edit_option, flight_choice, attraction_choice)
+            edit_itinerary(itineraries, itinerary_option, edit_option, flight_choice, attraction_choice, new_edit_value)
 
         # Add flight or attraction to existing itinerary
         elif user_choice == "3":

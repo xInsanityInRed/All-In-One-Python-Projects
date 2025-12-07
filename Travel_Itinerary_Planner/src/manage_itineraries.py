@@ -59,101 +59,100 @@ def add_itinerary(itinerary_list, name, location, description, start_date, end_d
 
         save_itineraries(itinerary_list)
         return True
-    else:
-        return False
+    return False
 
 
-def edit_itinerary(itinerary_list, itinerary_option, edit_option, flight_choice, attraction_choice):
+def edit_itinerary(itinerary_list, itinerary_option, edit_option, flight_choice, attraction_choice, new_value):
     # Edit the itinerary list
     for itinerary in itinerary_list:
         if itinerary["name"] == itinerary_option:
             # Edit DateTime-adjacent data
             if edit_option == "start_date":
-                while True:
-                    start_date = input("Start date in DD-MM-YYYY: ")
-                    if not validate_dates(start_date, itinerary["end_date"], itinerary["flights"]):
-                        print("Invalid date. Please ensure it is in DD-MM-YYYY format (e.g., 12-12-2026)")
-                    else:
-                        itinerary["start_date"] = start_date
-                        break
+                if not validate_dates(new_value, itinerary["end_date"], itinerary["flights"]):
+                    print("Invalid date. Format required: DD-MM-YYYY (e.g., 12-12-2026)")
+                    return False
+                else:
+                    itinerary["start_date"] = new_value
+                    break
             elif edit_option == "end_date":
-                while True:
-                    end_date = input("End date in DD-MM-YYYY: ")
-                    if not validate_dates(itinerary["start_date"], end_date, itinerary["flights"]):
-                        print("Invalid date. Please ensure it is in DD-MM-YYYY format (e.g., 12-12-2026)")
-                    else:
-                        itinerary["end_date"] = end_date
-                        break
+                if not validate_dates(itinerary["start_date"], new_value, itinerary["flights"]):
+                    print("Invalid date. Format required: DD-MM-YYYY (e.g., 12-12-2026)")
+                    return False
+                else:
+                    itinerary["end_date"] = new_value
+                    break
             elif edit_option == "departure date":
                 for flight_id in itinerary["flights"]:
                     if flight_id["flight name"] == flight_choice:
-                        while True:
-                            departure = input("Date & time of flight departure (Format: DD-MM-YYYY HH:MM): ")
-                            if not validate_dates(itinerary["start_date"], itinerary["end_date"], itinerary["flights"]):
-                                print("Invalid date. Please ensure it is in DD-MM-YYYY HH:MM format (e.g., 12-12-2026 08:00)")
-                            else:
-                                flight_id["departure date"] = departure
-                                flight_id["flight name"] = f"{flight_id["departure airport"]} to {flight_id["arrival airport"]}"
-                                break
-                        break
+                        test_updated_flight = [flight_id]
+                        test_updated_flight["departure date"] = new_value
+                        if not validate_dates(itinerary["start_date"], itinerary["end_date"], test_updated_flight):
+                            print("Invalid date. Format required: DD-MM-YYYY HH:MM (e.g., 12-12-2026 08:00)")
+                            return False
+                        else:
+                            flight_id["departure date"] = new_value
+                            break
+                break
             elif edit_option == "arrival date":
                 for flight_id in itinerary["flights"]:
                     if flight_id["flight name"] == flight_choice:
-                        while True:
-                            arrival = input("Date & time of flight arrival (Format: DD-MM-YYYY HH:MM): ")
-                            if not validate_dates(itinerary["start_date"], itinerary["end_date"], itinerary["flights"]):
-                                print("Invalid date & time. Please ensure it is in DD-MM-YYYY HH:MM format (e.g., 12-12-2026 08:00")
-                            else:
-                                flight_id["arrival date"] = arrival
-                                break
-                        break
+                        test_updated_flight = [flight_id]
+                        test_updated_flight["arrival date"] = new_value
+                        if not validate_dates(itinerary["start_date"], itinerary["end_date"], test_updated_flight):
+                            print("Invalid date & time. Format required: DD-MM-YYYY HH:MM (e.g., 12-12-2026 08:00")
+                            return False
+                        else:
+                            flight_id["arrival date"] = new_value
+                            break
+                break
             else:
                 # Edit trip's string data (outside of flights & attractions)
                 if edit_option == 'name' or edit_option == 'location' or edit_option == 'description':
                     itinerary[edit_option] = input(f"Enter a new {edit_option} for {itinerary['name']}: ")
+                    break
 
                 # Flights: string type options
                 elif edit_option == 'departure airport':
-                    airport_leaving = input("Name of airport you are departing from: ")
                     for flight_id in itinerary["flights"]:
                         if flight_id["flight name"] == flight_choice:
-                            flight_id["departure airport"] = airport_leaving
-                            flight_id["flight name"] = f"{airport_leaving} to {flight_id["arrival airport"]}"
+                            flight_id["departure airport"] = new_value
+                            flight_id["flight name"] = f"{new_value} to {flight_id["arrival airport"]}"
                             break
+                    break
 
                 elif edit_option == 'arrival airport':
-                    arrival_airport = input("Name of airport you are arriving at: ")
                     for flight_id in itinerary["flights"]:
                         if flight_id["flight name"] == flight_choice:
-                            flight_id.update({"arrival airport": arrival_airport})
-                            flight_id["flight name"] = f"{flight_id["departure airport"]} to {arrival_airport}"
+                            flight_id.update({"arrival airport": new_value})
+                            flight_id["flight name"] = f"{flight_id["departure airport"]} to {new_value}"
                             break
+                    break
 
                 # Attractions: string type options
                 elif edit_option == 'attraction_name':
-                    attraction_id_name = input("Name of the attraction: ")
                     for attraction in itinerary["attractions"]:
                         if attraction["attraction name"] == attraction_choice:
-                            attraction.update({"attraction name": attraction_id_name})
+                            attraction.update({"attraction name": new_value})
                             break
+                    break
                 elif edit_option == 'address':
-                    attraction_address = input("New attraction address: ")
                     for attraction in itinerary["attractions"]:
                         if attraction["attraction name"] == attraction_choice:
-                            attraction.update({"address": attraction_address})
+                            attraction.update({"address": new_value})
                             break
+                    break
                 elif edit_option == 'summary':
-                    attraction_summary = input("Short summary of the attraction: ")
                     for attraction in itinerary["attractions"]:
                         if attraction["attraction name"] == attraction_choice:
-                            attraction.update({"summary": attraction_summary})
+                            attraction.update({"summary": new_value})
                             break
+                    break
                 elif edit_option == 'tag(s)':
-                    attraction_tags = input("Provide some tags that categorise what kind of activity this involves.\nExample of format required: hike, exciting, views: ")
                     for attraction in itinerary["attractions"]:
                         if attraction["attraction name"] == attraction_choice:
-                            attraction.update({"tag(s)": attraction_tags})
+                            attraction.update({"tag(s)": new_value})
                             break
+                    break
     save_itineraries(itinerary_list)
     # Uncomment to print for itinerary_list validation:
     # print(itinerary_list)
@@ -284,13 +283,13 @@ def validate_dates(start_date, end_date, flights):
     """
 
     try:
-        datetime.strptime(start_date, "dd-mm-YYYY")
+        datetime.strptime(start_date, "%d-%m-%Y")
     except ValueError:
         print("Error: Invalid start date. Use 'DD-MM-YYYY' format.")
         return False
 
     try:
-        datetime.strptime(end_date, "dd-mm-YYYY")
+        datetime.strptime(end_date, "%d-%m-%Y")
     except ValueError:
         print("Error: Invalid end date. Use 'DD-MM-YYYY' format.")
         return False
@@ -298,13 +297,13 @@ def validate_dates(start_date, end_date, flights):
     # Resource used for following code: https://stackoverflow.com/questions/17322208/multiple-try-codes-in-one-block
     for flight_info in flights:
         try:
-            datetime.strptime(flight_info["departure date"], "dd-mm-YYYY HH:MM")
+            datetime.strptime(flight_info["departure date"], "%d-%m-%Y %H:%M")
         except ValueError:
             print("Error: Invalid date/time for flight departure. Use 'DD-MM-YYYY HH:MM' format.")
             return False
 
         try:
-            datetime.strptime(flight_info["arrival date"], "dd-mm-YYYY HH:MM")
+            datetime.strptime(flight_info["arrival date"], "%d-%m-%Y %H:%M")
         except ValueError:
             print("Error: Invalid date/time for flight arrival. Use 'DD-MM-YYYY HH:MM' format.")
             return False
