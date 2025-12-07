@@ -6,6 +6,7 @@ import os
 import io
 from rich.console import Console
 from rich.table import Table
+from rich import print
 
 from pick import Picker
 
@@ -302,40 +303,382 @@ class TestManageItineraries(unittest.TestCase):
         edit_itinerary(self.itineraries, self.itineraries[1]["name"], "attraction name", "N/A", test_England_itinerary["attractions"][1]["attraction name"], new_attraction_name)
         self.assertNotEqual(self.itineraries[1]["attractions"][1]["attraction name"], old_attraction_name)
         self.assertEqual(self.itineraries[1]["attractions"][1]["attraction name"], new_attraction_name)
+    
+
+    def test_add_new_flight(self):
+        """
+        Docstring for test_add_new_flight.
+        
+        Verifies that:
+            1. A new flight is added successfully.
+            2. Number of flights has increased by 1
+            3. The last flight in the flight list is the added flight (function uses append() to add a new flight)
+        """
+        test_Japan_itinerary = {
+            "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "12-12-2026 08:00",
+                "arrival airport": "Narita",
+                "arrival date": "12-12-2026 16:00"
+            },
+                {
+                    "flight name": "Narita to Singapore",
+                    "departure airport": "Narita",
+                    "departure date": "27-01-2027 23:00",
+                    "arrival airport": "Singapore",
+                    "arrival date": "28-01-2027 03:00"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "Hike",
+                "address": "123 Hike Lane",
+                "summary": "A cool hike with good views",
+                "tag(s)": "outdoors"
+            },
+                {
+                    "attraction name": "Dinner spot",
+                    "address": "49 Sweet Cove",
+                    "summary": "A lovely dinner spot",
+                    "tag(s)": "dinner, romantic"
+                }
+            ]}
+        add_itinerary(self.itineraries, name=test_Japan_itinerary["name"], location=test_Japan_itinerary["location"], description=test_Japan_itinerary["description"], start_date=test_Japan_itinerary["start_date"], end_date=test_Japan_itinerary["end_date"], flights=test_Japan_itinerary["flights"], attractions=test_Japan_itinerary["attractions"])
+        initial_number_of_flights = len(test_Japan_itinerary["flights"])
+        new_flight = [{
+                "flight name": "Singapore to Perth",
+                "departure airport": "Singapore",
+                "departure date": "28-01-2027 04:30",
+                "arrival airport": "Perth",
+                "arrival date": "28-01-2027 09:45"
+            }]
+        
+        test_new_flight = add_new_flight(self.itineraries, test_Japan_itinerary["name"], new_flight)
+        added_flight = [self.itineraries[0]["flights"][-1]]
+        self.assertTrue(test_new_flight)
+        self.assertEqual(len(self.itineraries[0]["flights"]), (initial_number_of_flights + 1))
+        self.assertEqual(added_flight, new_flight)
+
+
+    def test_add_new_attraction(self):
+        """
+        Docstring for test_add_new_attraction.
+        
+        Verifies that:
+            1. A new attraction is added successfully.
+            2. Number of attractions has increased by 1
+            3. The last attraction in the attractions list is the added attraction (function uses append() to add a new attraction)
+        """
+        test_Japan_itinerary = {
+            "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "12-12-2026 08:00",
+                "arrival airport": "Narita",
+                "arrival date": "12-12-2026 16:00"
+            },
+                {
+                    "flight name": "Narita to Singapore",
+                    "departure airport": "Narita",
+                    "departure date": "27-01-2027 23:00",
+                    "arrival airport": "Singapore",
+                    "arrival date": "28-01-2027 03:00"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "Hike",
+                "address": "123 Hike Lane",
+                "summary": "A cool hike with good views",
+                "tag(s)": "outdoors"
+            },
+                {
+                    "attraction name": "Dinner spot",
+                    "address": "49 Sweet Cove",
+                    "summary": "A lovely dinner spot",
+                    "tag(s)": "dinner, romantic"
+                }
+            ]}
+        add_itinerary(self.itineraries, name=test_Japan_itinerary["name"], location=test_Japan_itinerary["location"], description=test_Japan_itinerary["description"], start_date=test_Japan_itinerary["start_date"], end_date=test_Japan_itinerary["end_date"], flights=test_Japan_itinerary["flights"], attractions=test_Japan_itinerary["attractions"])
+        initial_number_of_attractions = len(test_Japan_itinerary["attractions"])
+        new_attraction = [{
+                "attraction name": "Singapore to Perth",
+                "address": "Singapore",
+                "summary": "28-01-2027 04:30",
+                "tag(s)": "Perth"
+            }]
+        
+        test_new_attraction = add_new_attraction(self.itineraries, test_Japan_itinerary["name"], new_attraction)
+        added_attraction = [self.itineraries[0]["attractions"][-1]]
+        self.assertTrue(test_new_attraction)
+        self.assertEqual(len(self.itineraries[0]["attractions"]), (initial_number_of_attractions + 1))
+        self.assertEqual(added_attraction, new_attraction)
 
 
     def test_delete_itinerary(self):
         """
-        Test deleting a task by its title.
-        Verify that the task is removed from the list and the list size decreases.
+        Test deleting a full itinerary by name.
+        Verify that:
+            1. The itinerary is removed from the list of itineraries.
+            2. The list size decreases.
+            3. The itinerary left in the itineraries list is the one not chosen for deletion.
+            4. The itinerary chosen for deletion is no longer in the saved itinerary list.
         """
-        add_itinerary(self.itineraries, "Task to Delete", "Description", "01-12-2024", "Pending")
-        result = delete_itinerary(self.itineraries, "Task to Delete")
-        self.assertTrue(result)
-        self.assertEqual(len(self.itineraries), 0)
+        test_Japan_itinerary = {
+            "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "12-12-2026 08:00",
+                "arrival airport": "Narita",
+                "arrival date": "12-12-2026 16:00"
+            },
+                {
+                    "flight name": "Narita to Perth",
+                    "departure airport": "Narita",
+                    "departure date": "27-01-2027 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "28-01-2027 07:00"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "Hike",
+                "address": "123 Hike Lane",
+                "summary": "A cool hike with good views",
+                "tag(s)": "outdoors"
+            },
+                {
+                    "attraction name": "Dinner spot",
+                    "address": "49 Sweet Cove",
+                    "summary": "A lovely dinner spot",
+                    "tag(s)": "dinner, romantic"
+                }
+            ]}
+        
+        test_England_itinerary = {
+            "name": "England 2020", "location": "England", "description": "Trip to England in 2020", "start_date": "21-09-2020", "end_date": "04-10-2020", "flights": [{
+                "flight name": "Perth to London",
+                "departure airport": "Perth",
+                "departure date": "21-09-2020 05:00",
+                "arrival airport": "London",
+                "arrival date": "21-09-2020 21:00"
+            },
+                {
+                    "flight name": "London to Perth",
+                    "departure airport": "London",
+                    "departure date": "04-10-2020 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "05-10-2020 15:30"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "London Eye",
+                "address": "Somewhere in city",
+                "summary": "A glorified ferris wheel that shows the city surrounds",
+                "tag(s)": "view, relaxing"
+            },
+                {
+                    "attraction name": "Shakespeare's Globe",
+                    "address": "12 address strees",
+                    "summary": "A reconstructed theatre",
+                    "tag(s)": "entertainment, history"
+                }
+            ]}
+        add_itinerary(self.itineraries, name=test_Japan_itinerary["name"], location=test_Japan_itinerary["location"], description=test_Japan_itinerary["description"], start_date=test_Japan_itinerary["start_date"], end_date=test_Japan_itinerary["end_date"], flights=test_Japan_itinerary["flights"], attractions=test_Japan_itinerary["attractions"])
+        add_itinerary(self.itineraries, name=test_England_itinerary["name"], location=test_England_itinerary["location"], description=test_England_itinerary["description"], start_date=test_England_itinerary["start_date"], end_date=test_England_itinerary["end_date"], flights=test_England_itinerary["flights"], attractions=test_England_itinerary["attractions"])
+        result = delete_itinerary(self.itineraries, test_Japan_itinerary["name"])
 
-    def test_view_itineraries(self):
+        self.assertTrue(result)
+        self.assertEqual(len(self.itineraries), 1)
+        self.assertEqual(self.itineraries, [test_England_itinerary])
+        self.assertNotEqual(self.itineraries, [test_Japan_itinerary])
+
+
+    def test_delete_itinerary_items(self):
         """
-        Docstring for test_view_itineraries
-        
-        
+        Test deleting a full itinerary by name.
+        Verify that the itinerary is removed from the list of itineraries and the list size decreases.
         """
-        pass
+        test_Japan_itinerary = {
+            "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "12-12-2026 08:00",
+                "arrival airport": "Narita",
+                "arrival date": "12-12-2026 16:00"
+            },
+                {
+                    "flight name": "Narita to Perth",
+                    "departure airport": "Narita",
+                    "departure date": "27-01-2027 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "28-01-2027 07:00"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "Hike",
+                "address": "123 Hike Lane",
+                "summary": "A cool hike with good views",
+                "tag(s)": "outdoors"
+            },
+                {
+                    "attraction name": "Dinner spot",
+                    "address": "49 Sweet Cove",
+                    "summary": "A lovely dinner spot",
+                    "tag(s)": "dinner, romantic"
+                }
+            ]}
+        test_England_itinerary = {
+            "name": "England 2020", "location": "England", "description": "Trip to England in 2020", "start_date": "21-09-2020", "end_date": "04-10-2020", "flights": [{
+                "flight name": "Perth to London",
+                "departure airport": "Perth",
+                "departure date": "21-09-2020 05:00",
+                "arrival airport": "London",
+                "arrival date": "21-09-2020 21:00"
+            },
+                {
+                    "flight name": "London to Perth",
+                    "departure airport": "London",
+                    "departure date": "04-10-2020 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "05-10-2020 15:30"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "London Eye",
+                "address": "Somewhere in city",
+                "summary": "A glorified ferris wheel that shows the city surrounds",
+                "tag(s)": "view, relaxing"
+            },
+                {
+                    "attraction name": "Shakespeare's Globe",
+                    "address": "12 address strees",
+                    "summary": "A reconstructed theatre",
+                    "tag(s)": "entertainment, history"
+                }
+            ]}
+        
+        original_itinerary_items = []
+        original_itinerary_items.append([{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "12-12-2026 08:00",
+                "arrival airport": "Narita",
+                "arrival date": "12-12-2026 16:00"
+            },
+                {
+                    "flight name": "Narita to Perth",
+                    "departure airport": "Narita",
+                    "departure date": "27-01-2027 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "28-01-2027 07:00"
+                }
+            ])
+        original_itinerary_items.append([{
+                "attraction name": "London Eye",
+                "address": "Somewhere in city",
+                "summary": "A glorified ferris wheel that shows the city surrounds",
+                "tag(s)": "view, relaxing"
+            },
+                {
+                    "attraction name": "Shakespeare's Globe",
+                    "address": "12 address strees",
+                    "summary": "A reconstructed theatre",
+                    "tag(s)": "entertainment, history"
+                }
+            ])
+        
+        add_itinerary(self.itineraries, name=test_Japan_itinerary["name"], location=test_Japan_itinerary["location"], description=test_Japan_itinerary["description"], start_date=test_Japan_itinerary["start_date"], end_date=test_Japan_itinerary["end_date"], flights=test_Japan_itinerary["flights"], attractions=test_Japan_itinerary["attractions"])
+        add_itinerary(self.itineraries, name=test_England_itinerary["name"], location=test_England_itinerary["location"], description=test_England_itinerary["description"], start_date=test_England_itinerary["start_date"], end_date=test_England_itinerary["end_date"], flights=test_England_itinerary["flights"], attractions=test_England_itinerary["attractions"])
+        test_delete_flight = delete_itinerary_item(self.itineraries, 'flights', test_Japan_itinerary["name"], test_Japan_itinerary["flights"][1]["flight name"])
+        test_delete_attraction = delete_itinerary_item(self.itineraries, 'attractions', test_England_itinerary["name"], test_England_itinerary["attractions"][0]["attraction name"])
+
+        self.assertTrue(test_delete_flight)
+        self.assertTrue(test_delete_attraction)
+
+        self.assertNotEqual(self.itineraries[0]["flights"], original_itinerary_items[0])
+        self.assertNotEqual(self.itineraries[1]["attractions"], original_itinerary_items[1])
+        self.assertEqual(len(self.itineraries[0]["flights"]), len(original_itinerary_items[0]) - 1)
+        self.assertEqual(len(self.itineraries[1]["attractions"]), len(original_itinerary_items[1]) - 1)
+
 
     def test_save_and_load_itineraries(self):
         """
+        
         Test saving itineraries to a file and loading them back.
-        Verify that the saved itineraries are correctly loaded with the same data.
+        Verify that the saved itineraries are correctly loaded with the same data and format.
         """
-        add_itinerary(self.itineraries, "Persistent Task", "Description", "01-12-2024", "Pending")
+        test_Japan_itinerary = {
+            "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "12-12-2026 08:00",
+                "arrival airport": "Narita",
+                "arrival date": "12-12-2026 16:00"
+            },
+                {
+                    "flight name": "Narita to Perth",
+                    "departure airport": "Narita",
+                    "departure date": "27-01-2027 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "28-01-2027 07:00"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "Hike",
+                "address": "123 Hike Lane",
+                "summary": "A cool hike with good views",
+                "tag(s)": "outdoors"
+            },
+                {
+                    "attraction name": "Dinner spot",
+                    "address": "49 Sweet Cove",
+                    "summary": "A lovely dinner spot",
+                    "tag(s)": "dinner, romantic"
+                }
+            ]}
+        
+        test_England_itinerary = {
+            "name": "England 2020", "location": "England", "description": "Trip to England in 2020", "start_date": "21-09-2020", "end_date": "04-10-2020", "flights": [{
+                "flight name": "Perth to London",
+                "departure airport": "Perth",
+                "departure date": "21-09-2020 05:00",
+                "arrival airport": "London",
+                "arrival date": "21-09-2020 21:00"
+            },
+                {
+                    "flight name": "London to Perth",
+                    "departure airport": "London",
+                    "departure date": "04-10-2020 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "05-10-2020 15:30"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "London Eye",
+                "address": "Somewhere in city",
+                "summary": "A glorified ferris wheel that shows the city surrounds",
+                "tag(s)": "view, relaxing"
+            },
+                {
+                    "attraction name": "Shakespeare's Globe",
+                    "address": "12 address strees",
+                    "summary": "A reconstructed theatre",
+                    "tag(s)": "entertainment, history"
+                }
+            ]}
+        
+        itineraries_list = [test_Japan_itinerary, test_England_itinerary]
+        add_itinerary(self.itineraries, name=test_Japan_itinerary["name"], location=test_Japan_itinerary["location"], description=test_Japan_itinerary["description"], start_date=test_Japan_itinerary["start_date"], end_date=test_Japan_itinerary["end_date"], flights=test_Japan_itinerary["flights"], attractions=test_Japan_itinerary["attractions"])
+        add_itinerary(self.itineraries, name=test_England_itinerary["name"], location=test_England_itinerary["location"], description=test_England_itinerary["description"], start_date=test_England_itinerary["start_date"], end_date=test_England_itinerary["end_date"], flights=test_England_itinerary["flights"], attractions=test_England_itinerary["attractions"])
         save_itineraries(self.itineraries)
         loaded_itineraries = load_itineraries()
-        self.assertEqual(len(loaded_tasks), 1)
-        self.assertEqual(loaded_tasks[0].title, "Persistent Task")
+
+        self.assertEqual(len(loaded_itineraries), 2)
+        self.assertEqual(loaded_itineraries, itineraries_list)
 
     def test_rich_builtin_table(self):
         """
-        Test saves itineraries to the task list and displays new formatted table using "rich" Table component.
+        Test saves itineraries to the itinerary list and displays new formatted table using "rich" Table component.
+        Verify that using the view_itineraries() function prints a "rich" Table.
         Verify that the terminal's output matches the itineraries saved in the list of itineraries.
 
         Documentation for capturing output made by rich: https://rich.readthedocs.io/en/latest/console.html#capturing-output
@@ -343,22 +686,89 @@ class TestManageItineraries(unittest.TestCase):
         - [QUESTION] How to test output of rich.Table? #247 https://github.com/Textualize/rich/issues/247
         """
 
-        #Test view_itineraries function to verify itineraries are saved
-        test_table = Table(title="Test List")
-        test_table.add_column("Task", justify="center")
-        test_table.add_column("Description", justify="center")
-        test_table.add_column("Due Date", justify="center", no_wrap=True)
-        test_table.add_column("Status", justify="left", no_wrap=True)
-        add_itinerary(self.itineraries, "Test Task", "N/A", "01-12-2024", "Pending")
+        # Test view_itineraries function to verify itineraries are saved
+        test_table = Table(title="Itineraries", show_lines=True)
 
-        save_itineraries(self.itineraries)
-        view_itineraries(self.itineraries)
+        test_table.add_column("Trip Name", justify="center", no_wrap=True)
+        test_table.add_column("Location", justify="center", no_wrap=True)
+        test_table.add_column("Description", justify="left", no_wrap=False)
+        test_table.add_column("Start Date", justify="center", no_wrap=True)
+        test_table.add_column("End Date", justify="center", no_wrap=True)
+        test_table.add_column("Flights", justify="left", no_wrap=True)
+        test_table.add_column("Attractions", justify="left", no_wrap=True)
+        
+        test_Japan_itinerary = {
+            "name": "trip", "location": "Japan", "description": "description", "start_date": "12-12-2026", "end_date": "28-01-2027", "flights": [{
+                "flight name": "Perth to Narita",
+                "departure airport": "Perth",
+                "departure date": "12-12-2026 08:00",
+                "arrival airport": "Narita",
+                "arrival date": "12-12-2026 16:00"
+            },
+                {
+                    "flight name": "Narita to Perth",
+                    "departure airport": "Narita",
+                    "departure date": "27-01-2027 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "28-01-2027 07:00"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "Hike",
+                "address": "123 Hike Lane",
+                "summary": "A cool hike with good views",
+                "tag(s)": "outdoors"
+            },
+                {
+                    "attraction name": "Dinner spot",
+                    "address": "49 Sweet Cove",
+                    "summary": "A lovely dinner spot",
+                    "tag(s)": "dinner, romantic"
+                }
+            ]}
+        
+        test_England_itinerary = {
+            "name": "England 2020", "location": "England", "description": "Trip to England in 2020", "start_date": "21-09-2020", "end_date": "04-10-2020", "flights": [{
+                "flight name": "Perth to London",
+                "departure airport": "Perth",
+                "departure date": "21-09-2020 05:00",
+                "arrival airport": "London",
+                "arrival date": "21-09-2020 21:00"
+            },
+                {
+                    "flight name": "London to Perth",
+                    "departure airport": "London",
+                    "departure date": "04-10-2020 23:00",
+                    "arrival airport": "Perth",
+                    "arrival date": "05-10-2020 15:30"
+                }
+            ],
+            "attractions": [{
+                "attraction name": "London Eye",
+                "address": "Somewhere in city",
+                "summary": "A glorified ferris wheel that shows the city surrounds",
+                "tag(s)": "view, relaxing"
+            },
+                {
+                    "attraction name": "Shakespeare's Globe",
+                    "address": "12 address strees",
+                    "summary": "A reconstructed theatre",
+                    "tag(s)": "entertainment, history"
+                }
+            ]}
+        add_itinerary(self.itineraries, name=test_Japan_itinerary["name"], location=test_Japan_itinerary["location"], description=test_Japan_itinerary["description"], start_date=test_Japan_itinerary["start_date"], end_date=test_Japan_itinerary["end_date"], flights=test_Japan_itinerary["flights"], attractions=test_Japan_itinerary["attractions"])
+        add_itinerary(self.itineraries, name=test_England_itinerary["name"], location=test_England_itinerary["location"], description=test_England_itinerary["description"], start_date=test_England_itinerary["start_date"], end_date=test_England_itinerary["end_date"], flights=test_England_itinerary["flights"], attractions=test_England_itinerary["attractions"])
+        view_itineraries(self.itineraries, "All")
 
-        #Test that the output printed in the terminal has the same format as the rich component's "Table" class
+        # Test that the output printed in the terminal has the same format as the rich component's "Table" class
         test_console = Console(file=io.StringIO())
         test_console.print(test_table)
+
+        # Prints the same table as test_console.print(test_table)
+        print_table(self.itineraries)
+
         test_output = test_console.file.getvalue()
-        print(test_output)
+        print(test_output)  # prints table template for itinerary list
 
         self.assertIs(type(test_table), type(Table()))
         self.assertIs(type(test_output), str)
@@ -379,30 +789,6 @@ class TestManageItineraries(unittest.TestCase):
         itinerary_picker.move_down()
         assert itinerary_picker.get_selected() == ("this_itinerary", 1)
 
-    def test_pick_filter_tasks_by_status(self):
-        """
-        Test the "pick" library's ability to correctly filter tasks based on their status (e.g., 'completed').
-        Verify that only tasks matching the specified status are returned.
-        """
-        task1 = Task("Task 1", "Desc", "01-12-2024", "pending")
-        task2 = Task("Task 2", "Desc", "02-12-2024", "complete")
-        self.tasks.extend([task1, task2])
-        save_tasks(self.tasks)
-        task_filter_title = "Please choose a task: "
-        status_options = ["TBA", "pending", "complete"]
-        task_picker = Picker(status_options, task_filter_title, default_index=2)
-        assert task_picker.get_selected() == ("complete", 2)
-
-        filter_option = status_options[task_picker.default_index]
-        print("Filter option selected:", filter_option)
-
-        pick_filter = filter_tasks_by_status(self.tasks, filter_option)
-        self.assertEqual(pick_filter[0].title, "Task 2")
-
 
 if __name__ == "__main__":
     unittest.main()
-
-
-
-pass
