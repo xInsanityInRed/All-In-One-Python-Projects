@@ -108,7 +108,7 @@ def edit_itinerary(itinerary_list, itinerary_option, edit_option, flight_choice,
             else:
                 # Edit trip's string data (outside of flights & attractions)
                 if edit_option == 'name' or edit_option == 'location' or edit_option == 'description':
-                    itinerary[edit_option] = input(f"Enter a new {edit_option} for {itinerary['name']}: ")
+                    itinerary[edit_option] = new_value
                     break
 
                 # Flights: string type options
